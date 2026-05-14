@@ -1,0 +1,15 @@
+version: "3.9"
+
+services:
+  bot:
+    build: .
+    container_name: menu_one_bot
+    restart: unless-stopped
+    env_file:
+      - .env
+    volumes:
+      - ./data:/app/data
+      - ./media:/app/media
+    environment:
+      - DATABASE_URL=sqlite+aiosqlite:///./data/bot.db
+      - MEDIA_DIR=./media/products
