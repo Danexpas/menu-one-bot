@@ -62,11 +62,21 @@ async def show_admin_menu(callback: CallbackQuery) -> None:
 
 
 @router.callback_query(F.data == "admin_exit")
-async def admin_exit(callback: CallbackQuery) -> None:
+async def admin_exit(callback: CallbackQuery, session: AsyncSession) -> None:
+    from bot.services.settings_service import SettingsService
+    from bot.services.cart_service import CartService
+    from bot.keyboards.main_kb import get_main_menu_keyboard
+
+    cfg        = SettingsService(session)
+    shop_name  = await cfg.get("shop_name") or "Магазин"
+    cart_count = await CartService(session).count(callback.from_user.id)
+
     await callback.message.edit_text(
-        "👋 <b>Вихід з адмін-панелі</b>\n\n"
-        "До побачення! Для повторного входу натисніть /admin",
+        f"<b>{shop_name}</b>\n\n"
+        "🏪 <b>Головне меню</b>\n\n"
+        "Оберіть розділ, що вас цікавить 👇",
         parse_mode="HTML",
+        reply_markup=get_main_menu_keyboard(cart_count=cart_count),
     )
     await callback.answer("Вийшли з адмін-панелі")
     logger.info(f"Admin {callback.from_user.id} logged out")
