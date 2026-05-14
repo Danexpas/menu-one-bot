@@ -7,6 +7,7 @@ from aiogram import Bot, Dispatcher
 from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
 from aiogram.fsm.storage.memory import MemoryStorage
+from aiogram.types import BotCommand, BotCommandScopeDefault
 
 from bot.config import settings
 from bot.database.session import create_tables
@@ -30,6 +31,14 @@ async def on_startup(bot: Bot) -> None:
     async with async_session_factory() as session:
         service = SettingsService(session)
         await service.init_defaults()
+
+    await bot.set_my_commands(
+        commands=[
+            BotCommand(command="start", description="🏪 Запустити бота"),
+            BotCommand(command="admin", description="🔐 Адмін-панель"),
+        ],
+        scope=BotCommandScopeDefault(),
+    )
 
     me = await bot.get_me()
     logger.info(f"Bot started: @{me.username} ({me.id})")
